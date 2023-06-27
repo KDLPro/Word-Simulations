@@ -91,8 +91,37 @@ class wordle_sim:
             if rng < cons_freq[i]:
                 return consonants[i]
             
+    def rando_plural_consonant_v2(self):
+        """
+        Generates consonants that can only be turned to plural by adding '-es'.
+        Chances taken from: https://mathcenter.oxford.emory.edu/site/math125/englishLetterFreqs/
+        """
+        consonants = "sxz"
+        cons_freq = [0.96581, 0.98870, 1]
+
+        rng = random.random()
+        rng = round(rng, 5)
+
+        for i in range(3):
             if rng < cons_freq[i]:
                 return consonants[i]
+
+    def rando_vowel_digraphs(self):
+        # Generates a random vowel digraph.
+        digraphs = ["ai", "ay", "au", "aw", "ea", "ee", "ei", "eu", "ie", "oe", "oi", "oy", "oo", "ou", "ow", "ue", "ui", "uy"]
+        rng = random.randint(0, len(digraphs) - 1)
+
+        return digraphs[rng]
+    
+    def rando_consonant_digraph_start(self):
+        """
+        Generates a random consonant digraph that can be found at the start of the word.
+        """
+
+        digraphs = ["ch", "ph", "sh", "th", "wh"]
+        rng = random.randint(0, len(digraphs) - 1)
+
+        return digraphs[rng]
     
     def strat_1(self):
         """
@@ -105,20 +134,18 @@ class wordle_sim:
         empty_letters = [0, 1, 2, 3, 4]
         mid_position = [1, 2, 3]
 
-        mid_vowel = self.randomize_vowels()
+        mid_vowel = self.rando_vowel()
         position = random.randint(1, 3)
         empty_letters.remove(position)
         mid_position.remove(position)
         guess = self.replace_char_at_index(mid_vowel, guess, position)
         
-        mid_vowel = self.randomize_vowels()
         mid_vowel = self.rando_vowel()
         rng_index = random.randint(0, 1)
         empty_letters.remove((mid_position[rng_index]))
         guess = self.replace_char_at_index(mid_vowel, guess, mid_position[rng_index])
         
         for i in empty_letters:
-            consonant = self.randomize_consonants()
             consonant = self.rando_consonant()
             guess = self.replace_char_at_index(consonant, guess, i)
 
@@ -127,9 +154,13 @@ class wordle_sim:
 
     def improved_strat_1(self):
         """
-        This strategy is modified from strat_1() by using a letter generator that uses
-        the frequency of letters in words as part of its letter generation. If the 
-        letter appears in more words, it is more likely to get picked.
+        This strategy aims to start generating two vowels in the middle three letters
+        as vowels tend to be in the middle of a word. Then, consonants are generated
+        to complete the word.
+
+        This time, the strategy using a letter generator that uses the frequency of 
+        letters in words as part of its letter generation. If the letter appears in 
+        more words, it is more likely to get picked.
         """
 
         guess = "     "
@@ -163,7 +194,32 @@ class wordle_sim:
         guess = "    s"
         empty_letters = [0, 1, 2, 3]
 
-        mid_vowel = self.randomize_vowels()
+        mid_vowel = self.rando_vowel()
+        position = random.randint(0, 1) + 1
+        empty_letters.remove(position)
+        guess = self.replace_char_at_index(mid_vowel, guess, position)
+        
+        for i in empty_letters:
+            consonant = self.rando_consonant()
+            guess = self.replace_char_at_index(consonant, guess, i)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def improved_strat_2(self):
+        """
+        This strategy aims to create a four-letter word and add the consonant 's' to
+        to form the plural of the four-letter word.
+
+        This time, the strategy using a letter generator that uses the frequency of 
+        letters in words as part of its letter generation. If the letter appears in 
+        more words, it is more likely to get picked.
+        """
+
+        guess = "    s"
+        empty_letters = [0, 1, 2, 3]
+
+        mid_vowel = self.rando_vowel_v2()
         position = random.randint(0, 1) + 1
         empty_letters.remove(position)
         guess = self.replace_char_at_index(mid_vowel, guess, position)
@@ -175,8 +231,229 @@ class wordle_sim:
         print("Guessed word: " + guess)
         self.check_closest_word(guess)
 
+    def strat_3(self):
+        """
+        This strategy is similar to strat_2() but this time, we generate a three-letter
+        word and add '-es' to it. To do it, we generate one vowel in either the first 
+        or the second letter.
+        """
+
+        guess = "   es"
+        empty_letters = [0, 1]
+
+        vowel = self.rando_vowel()
+        position = random.randint(0, 1)
+        empty_letters.remove(position)
+        guess = self.replace_char_at_index(vowel, guess, position)
+
+        consonant = self.rando_consonant()
+        guess = self.replace_char_at_index(consonant, guess, empty_letters[0])
+
+        consonant = self.rando_plural_consonant()
+        guess = self.replace_char_at_index(consonant, guess, 2)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def improved_strat_3(self):
+        """
+        This strategy is similar to strat_2() but this time, we generate a three-letter
+        word and add '-es' to it. To do it, we generate one vowel in either the first 
+        or the second letter.
+
+        This time, the strategy using a letter generator that uses the frequency of 
+        letters in words as part of its letter generation. If the letter appears in 
+        more words, it is more likely to get picked.
+        """
+
+        guess = "   es"
+        empty_letters = [0, 1]
+
+        vowel = self.rando_vowel_v2()
+        position = random.randint(0, 1)
+        empty_letters.remove(position)
+        guess = self.replace_char_at_index(vowel, guess, position)
+
+        consonant = self.rando_consonant_v2()
+        guess = self.replace_char_at_index(consonant, guess, empty_letters[0])
+
+        consonant = self.rando_plural_consonant_v2()
+        guess = self.replace_char_at_index(consonant, guess, 2)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def strat_4(self):
+        """
+        Generates a vowel digraph in the start or the middle of the word and 
+        generates consonants to complete the word.
+        """
+
+        guess = "     "
+        empty_letters = [0, 1, 2, 3, 4]
+
+        digraph = self.rando_vowel_digraphs()
+        position = random.randint(0, 2)
+        empty_letters.remove(position)
+        empty_letters.remove(position + 1)
+        guess = self.replace_letters_at_index(digraph, guess, position)
+
+        for i in empty_letters:
+            consonant = self.rando_consonant()
+            guess = self.replace_char_at_index(consonant, guess, i)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def improved_strat_4(self):
+        """
+        Generates a vowel digraph in the start or the middle of the word and 
+        generates consonants to complete the word.
+
+        This time, the strategy using a letter generator that uses the frequency of 
+        letters in words as part of its letter generation. If the letter appears in 
+        more words, it is more likely to get picked.
+
+        Note that the generation of digraphs are not affected.
+        """
+
+        guess = "     "
+        empty_letters = [0, 1, 2, 3, 4]
+
+        digraph = self.rando_vowel_digraphs()
+        position = random.randint(0, 2)
+        empty_letters.remove(position)
+        empty_letters.remove(position + 1)
+        guess = self.replace_letters_at_index(digraph, guess, position)
+
+        for i in empty_letters:
+            consonant = self.rando_consonant_v2()
+            guess = self.replace_char_at_index(consonant, guess, i)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def strat_5(self):
+        """
+        This strategy is modified from strat_4(). The second and third letters contain
+        a vowel digraph to create a 4-letter word. Then, consonants are generate to 
+        fill the remaining letters. Finally, '-s' is added to make it plural, thus 
+        making it a 5-letter word.
+        """
+
+        guess = "    s"
+        empty_letters = [0, 3]
+
+        digraph = self.rando_vowel_digraphs()
+        guess = self.replace_letters_at_index(digraph, guess, 1)
+
+        for i in empty_letters:
+            consonant = self.rando_consonant()
+            guess = self.replace_char_at_index(consonant, guess, i)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def improved_strat_5(self):
+        """
+        This strategy is modified from strat_4(). The second and third letters contain
+        a vowel digraph to create a 4-letter word. Then, consonants are generate to fill 
+        the remaining letters. Finally, '-s' is added to make it plural, thus making it a 
+        5-letter word.
+
+        This time, the strategy using a letter generator that uses the frequency of 
+        letters in words as part of its letter generation. If the letter appears in 
+        more words, it is more likely to get picked.
+
+        Note that the generation of digraphs are not affected.
+        """
+
+        guess = "    s"
+        empty_letters = [0, 3]
+
+        digraph = self.rando_vowel_digraphs()
+        guess = self.replace_letters_at_index(digraph, guess, 1)
+
+        for i in empty_letters:
+            consonant = self.rando_consonant_v2()
+            guess = self.replace_char_at_index(consonant, guess, i)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def strat_6(self):
+        """
+        Generates a consonant digraph at the start of the word. Then, generates a
+        vowel in the third letter, consonants in the fourth, and a random letter in
+        the fifth letter.
+        """
+
+        guess = "     "
+        
+        digraph = self.rando_consonant_digraph_start()
+        guess = self.replace_letters_at_index(digraph, guess, 0)
+
+        vowel = self.rando_vowel()
+        guess = self.replace_char_at_index(vowel, guess, 2)
+
+        consonant = self.rando_consonant()
+        guess = self.replace_char_at_index(consonant, guess, 3)
+
+        letter = self.rando_letter()
+        guess = self.replace_char_at_index(letter, guess, 4)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def improved_strat_6(self):
+        """
+        Generates a consonant digraph at the start of the word. Then, generates a
+        vowel in the third letter, consonants in the fourth, and a random letter in
+        the fifth letter.
+
+        This time, the strategy using a letter generator that uses the frequency of 
+        letters in words as part of its letter generation. If the letter appears in 
+        more words, it is more likely to get picked.
+
+        Note that the generation of digraphs are not affected.
+        """
+
+        guess = "     "
+        
+        digraph = self.rando_consonant_digraph_start()
+        guess = self.replace_letters_at_index(digraph, guess, 0)
+
+        vowel = self.rando_vowel_v2()
+        guess = self.replace_char_at_index(vowel, guess, 2)
+
+        consonant = self.rando_consonant_v2()
+        guess = self.replace_char_at_index(consonant, guess, 3)
+
+        letter = self.rando_letter_v2()
+        guess = self.replace_char_at_index(letter, guess, 4)
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
+    def no_strat(self):
+        """
+        A pure randomizer that randomly generates a 5-letter word.
+        """
+
+        guess = ""
+        for i in range(5):
+            guess += self.rando_letter()
+
+        print("Guessed word: " + guess)
+        self.check_closest_word(guess)
+
     def replace_char_at_index(self, to_replace, word, index):
         new_word = word[: index] + to_replace + word[index + 1 :]
+        return new_word
+    
+    def replace_letters_at_index(self, to_replace, word, index):
+        rep_len = len(to_replace) - 1
+        new_word = word[: index] + to_replace + word[index + rep_len + 1 :]
         return new_word
     
     def check_closest_word(self, guess):
@@ -216,13 +493,7 @@ class wordle_sim:
         print("Greens: " + str(self.getCurrGuessStatus().count("G")), end = ", ")
         print("Yellows: " + str(self.getCurrGuessStatus().count("Y")), end = "\n\n")
         word_file.close()
-
-    def modified_strategy_1(self):
-        """
-        Strategy 1 is modified to have the probabilities of letters in the dictionary accounted for.
-        """
-
-
+    
     def check_word(self, guess, target_word):
         # Checks how close the current guess is to the target word.
         letters_checked = []
@@ -247,6 +518,16 @@ class wordle_sim:
 
 if __name__ == "__main__":
     first_simulation = wordle_sim()
-    print(first_simulation.randomize_vowels_v2())
     first_simulation.strat_1()
+    first_simulation.improved_strat_1()
     first_simulation.strat_2()
+    first_simulation.improved_strat_2()
+    first_simulation.strat_3()
+    first_simulation.improved_strat_3()
+    first_simulation.strat_4()
+    first_simulation.improved_strat_4()
+    first_simulation.strat_5()
+    first_simulation.improved_strat_5()
+    first_simulation.strat_6()
+    first_simulation.improved_strat_6()
+    first_simulation.no_strat()

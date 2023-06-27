@@ -180,6 +180,7 @@ class wordle_sim:
         return new_word
     
     def check_closest_word(self, guess):
+        # Finds the word closest to the guess.
         word_file = open("five-letter-words.txt", "r")
         words = word_file.readlines()
         best_word = ""
@@ -204,14 +205,16 @@ class wordle_sim:
                     best_word = curr_word
                     best_guess = curr_guess
                     continue
-
+        
         self.setCurrentGuess(guess)
         self.setClosestWord(best_word[: -1])
         self.setCurrGuessStatus(best_guess)
 
         print("Closest Word: " + self.getClosestWord())
         print("Current Guess Status: ", end = " ")
-        print(self.getCurrGuessStatus(), end = "\n\n")
+        print(self.getCurrGuessStatus())
+        print("Greens: " + str(self.getCurrGuessStatus().count("G")), end = ", ")
+        print("Yellows: " + str(self.getCurrGuessStatus().count("Y")), end = "\n\n")
         word_file.close()
 
     def modified_strategy_1(self):

@@ -496,7 +496,9 @@ class wordle_sim:
     
     def check_word(self, guess, target_word):
         # Checks how close the current guess is to the target word.
-        letters_checked = []
+        letters_not_checked = []
+        for i in guess:
+            letters_not_checked.append(i)
         guess_status = ["R"] * 5
         if guess == target_word:
             guess_status = ["G"] * 5
@@ -504,14 +506,14 @@ class wordle_sim:
             for i in range(5):
                 if guess[i] == target_word[i]:
                     guess_status[i] = "G"
-                    letters_checked.append(guess[i])
+                    letters_not_checked.remove(guess[i])
             
             for i in range(5):
-                if guess[i] in letters_checked:
+                if guess[i] not in letters_not_checked:
                     continue
                 elif guess[i] in target_word:
                     guess_status[i] = "Y"
-                letters_checked.append(guess[i])
+                letters_not_checked.remove(guess[i])
         return guess_status
 
 

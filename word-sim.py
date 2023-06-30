@@ -473,7 +473,15 @@ class wordle_sim:
             G_bestGuess = best_guess.count("G")
             Y_bestGuess = best_guess.count("Y")
             
-            if G_currGuess > G_bestGuess:
+            if G_currGuess == 5:
+                best_word = curr_word
+                best_guess = curr_guess
+                continue
+            elif G_currGuess == 3 and Y_currGuess == 2:
+                best_word = curr_word
+                best_guess = curr_guess
+                continue
+            elif G_currGuess > G_bestGuess:
                 best_word = curr_word
                 best_guess = curr_guess
                 continue
@@ -497,8 +505,11 @@ class wordle_sim:
     def check_word(self, guess, target_word):
         # Checks how close the current guess is to the target word.
         letters_not_checked = []
+        target_not_checked = []
         for i in guess:
             letters_not_checked.append(i)
+        for i in target_word:
+            target_not_checked.append(i)
         guess_status = ["R"] * 5
         if guess == target_word:
             guess_status = ["G"] * 5
@@ -507,12 +518,16 @@ class wordle_sim:
                 if guess[i] == target_word[i]:
                     guess_status[i] = "G"
                     letters_not_checked.remove(guess[i])
+                    target_not_checked.remove(guess[i])
             
             for i in range(5):
                 if guess[i] not in letters_not_checked:
                     continue
+                elif guess[i] not in target_not_checked:
+                    continue
                 elif guess[i] in target_word:
                     guess_status[i] = "Y"
+                    target_not_checked.remove(guess[i])
                 letters_not_checked.remove(guess[i])
         return guess_status
 
@@ -520,16 +535,19 @@ class wordle_sim:
 
 if __name__ == "__main__":
     first_simulation = wordle_sim()
+    print("Strat 1")
     first_simulation.strat_1()
     first_simulation.improved_strat_1()
     first_simulation.strat_2()
     first_simulation.improved_strat_2()
     first_simulation.strat_3()
     first_simulation.improved_strat_3()
+    print("Strat 4")
     first_simulation.strat_4()
     first_simulation.improved_strat_4()
     first_simulation.strat_5()
     first_simulation.improved_strat_5()
     first_simulation.strat_6()
     first_simulation.improved_strat_6()
+    print("No Strat")
     first_simulation.no_strat()
